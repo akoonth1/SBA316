@@ -3,6 +3,17 @@ document.addEventListener('DOMContentLoaded', () => {
 	newDiv.id = 'myDiv';
 	newDiv.className = 'generated-div';
 
+
+
+
+
+    function addInputField() {
+        let input = document.createElement('input');
+        input.type = 'text';
+        input.placeholder = 'Enter text here';
+        newDiv.appendChild(input);
+    }
+
 	// Add a heading and a list inside the div
 	const heading = document.createElement('p');
 	heading.textContent = 'Hello from JavaScript-created div';
@@ -29,5 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	newDiv.style.fontSize = '24px';
 	newDiv.style.color = 'red';
 	newDiv.style.padding = '12px';
+
+   	addInputField();
 });
 
