@@ -109,5 +109,32 @@ function saveInputValue() {
  newDiv.appendChild(CharacterName);
 
 
+ const DungeonSpace = document.createElement('div');
+ DungeonSpace.id = 'dungeonSpace';
+ DungeonSpace.style.width = '400px';
+ DungeonSpace.style.height = '300px';
+ DungeonSpace.style.border = '2px solid black';
+ DungeonSpace.style.marginTop = '16px';
+ DungeonSpace.style.position = 'relative';
+ newDiv.appendChild(DungeonSpace);
+
+ DungeonSpace.textContent = 'Dungeon Area';
+ DungeonSpace.style.display = 'flex';
+ DungeonSpace.style.justifyContent = 'center';
+ DungeonSpace.style.alignItems = 'center';
+
+ let RoomColor = ['lightgray', 'lightblue', 'lightgreen', 'lightyellow', 'lightpink', 'lightcoral'];
+ let currentRoom = 0;
+ function changeRoom() {
+	currentRoom = (currentRoom + 1) % RoomColor.length;
+	DungeonSpace.style.backgroundColor = RoomColor[currentRoom];
+ }
+ const changeRoomBtn = document.createElement('button');
+ changeRoomBtn.textContent = 'Change Room';
+ changeRoomBtn.style.marginTop = '8px';
+ newDiv.appendChild(changeRoomBtn);
+ changeRoomBtn.addEventListener('click', changeRoom);
+
+
 });
 
