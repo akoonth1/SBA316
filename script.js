@@ -149,6 +149,17 @@ function saveInputValue() {
 
  let RoomColor = ['lightgray', 'lightblue', 'lightgreen', 'lightyellow', 'lightpink', 'lightcoral'];
  let currentRoom = 0;
+// images mapped by room index
+const imagesList = ['01.jpg', '02.jpg', '03.jpg', '04.jpg', '05.jpg', '06.jpg'];
+
+function updatePic() {
+	const picEl = document.getElementById('dungeonSpace') || DungeonSpace;
+	if (!picEl) return;
+	const idx = currentRoom % imagesList.length;
+	picEl.style.backgroundImage = `url('./images/${imagesList[idx]}')`;
+	picEl.style.backgroundSize = 'cover';
+	picEl.style.backgroundPosition = 'center';
+}
 function changeRoom() {
 	// advance to next room and record visit (avoid duplicate consecutive entries)
 	currentRoom = (currentRoom + 1) % RoomColor.length;
@@ -186,6 +197,9 @@ function loadPreviousFromHistory() {
 		DungeonSpace.style.backgroundColor = RoomColor[currentRoom];
 		DungeonSpace.dataset.room = currentRoom;
 		console.log('Loaded previous from history:', last);
+		// update image and visits counter when loading previous
+		updatePic();
+		if (typeof visitsCounter !== 'undefined') visitsCounter.textContent = `Rooms visited: ${roomsVisited.length}`;
 	}
 }
 
@@ -216,6 +230,8 @@ function recordVisit(id) {
 
 
 		}
+		// update dungeon image to match current room
+		updatePic();
 	}
 }
 
@@ -227,29 +243,34 @@ if (dungeonEl) {
 
 
 
+ // navigation container (buttons on one line)
+ const navContainer = document.createElement('div');
+ navContainer.style.display = 'flex';
+ navContainer.style.gap = '8px';
+ navContainer.style.marginTop = '8px';
+ navContainer.style.justifyContent = 'center';
+
  const leftRoomBtn = document.createElement('button');
  leftRoomBtn.textContent = 'Left Room';
- leftRoomBtn.style.marginTop = '8px';
- newDiv.appendChild(leftRoomBtn);
  leftRoomBtn.addEventListener('click', changeRoomLeft);
 
  const rightRoomBtn = document.createElement('button');
  rightRoomBtn.textContent = 'Right Room';
- rightRoomBtn.style.marginTop = '8px';
- newDiv.appendChild(rightRoomBtn);
  rightRoomBtn.addEventListener('click', changeRoom);
 
  const forwardRoomBtn = document.createElement('button');
  forwardRoomBtn.textContent = 'Forward Room';
- forwardRoomBtn.style.marginTop = '8px';
- newDiv.appendChild(forwardRoomBtn);
  forwardRoomBtn.addEventListener('click', changeRoom);
 
  const backRoomBtn = document.createElement('button');
  backRoomBtn.textContent = 'Previous Room';
- backRoomBtn.style.marginTop = '8px';
- newDiv.appendChild(backRoomBtn);
  backRoomBtn.addEventListener('click', loadPreviousFromHistory);
+
+ navContainer.appendChild(leftRoomBtn);
+ navContainer.appendChild(rightRoomBtn);
+ navContainer.appendChild(forwardRoomBtn);
+ navContainer.appendChild(backRoomBtn);
+ newDiv.appendChild(navContainer);
 
 
 let itemList = document.querySelector('#myDiv ul');
@@ -286,10 +307,27 @@ if (!roomsVisited.includes(roomId)) {
 		console.log('No element with id "list" found; skipping list2 population.');
 }
 
-// game-over is now handled inside `recordVisit`
+
+let pic =document.getElementById('dungeonSpace')
+console.log(pic.style.backgroundColor)
+
+let picSpace = RoomColor.indexOf(pic.style.backgroundColor)
+console.log(picSpace);
+
+// let images = ['01.jpg', '02.jpg', '03.jpg', '04.jpg', '05.jpg', '06.jpg'];
+
+
+
+
+// pic.style.backgroundImage = `url('./images/${images[picSpace]}')`;
+// pic.style.backgroundSize = 'cover';
+// pic.style.backgroundPosition = 'center';
 
 
 });
+
+
+
 
 
 
