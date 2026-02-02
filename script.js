@@ -42,8 +42,45 @@ document.addEventListener('DOMContentLoaded', () => {
 			errorMsg.style.display = valid ? 'none' : 'inline';
 		});
 
+
+
+		function validateUsername(value) {
+		if (value.length < 3) {
+		return "Username is too short"
+		}}
+
+		function applyValidation() {
+  const err = validateUsername(input.value.trim());
+  if (err) {
+    errorMsg.textContent = err;
+    errorMsg.style.display = 'inline';
+    saveBtn.disabled = true;
+  } else {
+    errorMsg.style.display = 'none';
+    saveBtn.disabled = false;
+  }
+}
+
+
+input.addEventListener('input', applyValidation);
+
+
+input.addEventListener('blur', applyValidation);
+
+
+input.addEventListener('change', applyValidation);
+
+
+applyValidation();
+
 		saveBtn.addEventListener('click', () => {
 			const name = input.value.trim();
+			if (validateUsername(name)) {
+				errorMsg.textContent = validateUsername(name);
+				errorMsg.style.display = 'inline';
+				return;
+			}
+
 			if (!name) {
 				errorMsg.style.display = 'inline';
 				saveBtn.disabled = true;
@@ -115,7 +152,7 @@ function saveInputValue() {
   }
 	}
 
- let player1 = new Character( newInput, 'Water', 100, 15);
+ let player1 = new Character('', 'Water', 100, 15);
  let enemy1 = new Character('Goblin', 'Earth', 80, 10);
  let enemy2 = new Character('Orc', 'Fire', 120, 20);
  let enemy3 = new Character('Troll', 'Air', 150, 25);
@@ -146,6 +183,8 @@ function saveInputValue() {
  DungeonSpace.style.display = 'flex';
  DungeonSpace.style.justifyContent = 'center';
  DungeonSpace.style.alignItems = 'center';
+ DungeonSpace.style.fontSize = '32px'
+ DungeonSpace.style.color = 'White';
 
  let RoomColor = ['lightgray', 'lightblue', 'lightgreen', 'lightyellow', 'lightpink', 'lightcoral'];
  let currentRoom = 0;
@@ -314,14 +353,8 @@ console.log(pic.style.backgroundColor)
 let picSpace = RoomColor.indexOf(pic.style.backgroundColor)
 console.log(picSpace);
 
-// let images = ['01.jpg', '02.jpg', '03.jpg', '04.jpg', '05.jpg', '06.jpg'];
 
 
-
-
-// pic.style.backgroundImage = `url('./images/${images[picSpace]}')`;
-// pic.style.backgroundSize = 'cover';
-// pic.style.backgroundPosition = 'center';
 
 
 });
