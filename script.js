@@ -89,7 +89,8 @@ applyValidation();
 			if (typeof player1 !== 'undefined') {
 				player1.name = name;
 				CharacterName.textContent = `Player: ${player1.name}`;
-				localStorage.setItem('player1', JSON.stringify(player1));
+					localStorage.setItem('player1', JSON.stringify(player1));
+					if (typeof updatePlayerStats === 'function') updatePlayerStats();
 			}
 			console.log('Saved name:', name);
 		});
@@ -208,6 +209,8 @@ function changeRoom() {
 	DungeonSpace.dataset.room = currentRoom;
 	const id = `room-${currentRoom}`;
 	recordVisit(id);
+	treasureFound = false;
+
 }
 
 function changeRoomLeft() {
@@ -253,6 +256,12 @@ visitsCounter.id = 'visitsCounter';
 visitsCounter.style.marginTop = '8px';
 visitsCounter.textContent = `Rooms visited: ${roomsVisited.length}`;
 newDiv.appendChild(visitsCounter);
+
+// dedicated container for enemy info (do not reuse visits counter)
+const enemyInfo = document.createElement('div');
+enemyInfo.id = 'enemyInfo';
+enemyInfo.style.marginTop = '8px';
+newDiv.appendChild(enemyInfo);
 
 function recordVisit(id) {
 	const prevLen = roomsVisited.length;
@@ -363,9 +372,9 @@ function getPicSpace() {
 }
 
 function updateEnemyDisplay() {
-	const target = document.getElementById('dungeonSpace')?.nextElementSibling;
+	const target = document.getElementById('enemyInfo');
 	if (!target) {
-		console.warn('No target to append enemy info to');
+		console.warn('No #enemyInfo element to append enemy info to');
 		return;
 	}
 	// clear previous contents to keep the UI in sync
@@ -389,7 +398,114 @@ function updateEnemyDisplay() {
 updateEnemyDisplay();
 
 
+let newMenu =document.createElement('div');
+newMenu.id = 'menu';
+newMenu.style.marginTop = '16px';
+newDiv.appendChild(newMenu);
+//newMenu.textContent = 'Game Menu: [Inventory] [Stats] [Settings]';
+newMenu.style.display = 'flex';
+newMenu.style.justifyContent = 'center';
+newMenu.style.gap = '16px';
+newMenu.innerHTML = `
+	<button id="run">Run</button>
+	<button id="raid">Raid</button>
+	<button id="fight">Fight</button>
+`;
 
+
+let runStatus = false;
+let gameOver = false;
+let fightStatus = false;
+let raidStatus = false;
+
+let treasureFound = false;
+let treasure = [ 'Gold Coins', 'Jewels', 'Ancient Artifact', 'Magic Scroll', 'Rare Gemstone' ];
+
+let runBtn = document.getElementById('run');
+if (runBtn) {
+	runBtn.addEventListener('click', () => {
+		runStatus = true;
+		alert('You chose to run away!');
+		// clear room history when running away
+		if (Array.isArray(roomsVisited)) {
+			roomsVisited.length = 0;
+			if (typeof visitsCounter !== 'undefined') visitsCounter.textContent = `Rooms visited: ${roomsVisited.length}`;
+			console.log('Room history cleared due to running away');
+			// allow the game to continue after clearing history
+			gameState = true;
+		}
+		// move to the next room when running away
+		if (typeof changeRoom === 'function') changeRoom();
+	});
+} else {
+	console.warn('Run button not found');
+}
+
+let raidBtn = document.getElementById('raid');
+raidBtn.addEventListener('click', () => {
+	alert('You chose to raid the enemy!');
+	raidStatus = true;
+	// simulate treasure finding
+	if (!treasureFound) {
+		const foundItem = treasure[Math.floor(Math.random() * treasure.length)];
+		alert(`You found a treasure: ${foundItem}!`);
+		treasureFound = true;
+		document.querySelector('#myDiv ul').innerHTML += `<li>${foundItem}</li>`;
+		
+
+	}
+	else {		alert('No more treasure to find here.');
+	}
+
+});
+
+let fightBtn = document.getElementById('fight');
+fightBtn.addEventListener('click', () => {
+	alert('You chose to fight the enemy!');
+});
+
+
+
+// Player stats display
+const playerStats = document.createElement('div');
+playerStats.id = 'stats';
+playerStats.style.marginTop = '16px';
+newDiv.appendChild(playerStats);
+
+function updatePlayerStats() {
+	playerStats.innerHTML = `
+		<p><strong>Player Stats:</strong></p>
+
+		<p>Health: ${player1.health}</p>
+		<p>Attack: ${player1.attack}</p>
+	`;
+}
+
+
+// let playerInventory = ['Sword', 'Shield', 'Health Potion'];
+
+// function updateInventoryDisplay() {
+// 	const inventoryDiv = document.getElementById('inventory') || document.createElement('div');
+// 	inventoryDiv.id = 'inventory';
+// 	inventoryDiv.style.marginTop = '16px';
+// 	newDiv.appendChild(inventoryDiv);
+// 	inventoryDiv.innerHTML = '<strong>Inventory:</strong>';
+// 	const ul = document.createElement('ul');
+// 	playerInventory.forEach(item => {
+// 		const li = document.createElement('li');	
+// 		li.textContent = item;
+// 		ul.appendChild(li);
+// 	});
+// 	inventoryDiv.appendChild(ul);
+// }
+
+
+
+
+// initial render
+updatePlayerStats();
+
+console.log(newDiv);
 
 });
 
