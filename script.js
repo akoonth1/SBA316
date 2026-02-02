@@ -157,8 +157,10 @@ function saveInputValue() {
  let enemy2 = new Character('Orc', 'Fire', 120, 20);
  let enemy3 = new Character('Troll', 'Air', 150, 25);
  let enemy4 = new Character('Dragon', 'Fire', 300, 50);
+ let enemy5 = new Character('Slime', 'Water', 50, 5);
+ let enemy6 = new Character('Skeleton', 'Earth', 90, 12);
 
- let enemies = [enemy1, enemy2, enemy3, enemy4];
+ let enemies = [enemy1, enemy2, enemy3, enemy4, enemy5, enemy6];
  console.log(enemies);
 
 
@@ -261,7 +263,7 @@ function recordVisit(id) {
 		console.log('New room visited:', id);
 		visitsCounter.textContent = `Rooms visited: ${roomsVisited.length}`;
 		// game over check: trigger when visits reach threshold
-		if (roomsVisited.length >= 3 && gameState) {
+		if (roomsVisited.length >= 7 && gameState) {
 			gameState = false;
 			alert('Game Over! Restart to play again.');
 			window.confirm('Would you like to restart the game?') && window.location.reload();
@@ -270,7 +272,9 @@ function recordVisit(id) {
 
 		}
 		// update dungeon image to match current room
-		updatePic();
+			updatePic();
+			// refresh enemy info display to match the new room
+			if (typeof updateEnemyDisplay === 'function') updateEnemyDisplay();
 	}
 }
 
@@ -353,6 +357,36 @@ console.log(pic.style.backgroundColor)
 let picSpace = RoomColor.indexOf(pic.style.backgroundColor)
 console.log(picSpace);
 
+function getPicSpace() {
+	const bg = (DungeonSpace.style && DungeonSpace.style.backgroundColor) || '';
+	return RoomColor.indexOf(bg);
+}
+
+function updateEnemyDisplay() {
+	const target = document.getElementById('dungeonSpace')?.nextElementSibling;
+	if (!target) {
+		console.warn('No target to append enemy info to');
+		return;
+	}
+	// clear previous contents to keep the UI in sync
+	target.innerHTML = '';
+	const idx = getPicSpace();
+	const enemy = (Number.isInteger(idx) && idx >= 0 && enemies[idx]) ? enemies[idx] : { name: 'Unknown', health: '?', attack: '?' };
+	const p = document.createElement('p');
+	p.textContent = `Enemy Encountered: ${enemy.name} (Health: ${enemy.health}, Attack: ${enemy.attack})`;
+	target.appendChild(p);
+}
+
+
+
+
+
+
+
+
+
+// initial render
+updateEnemyDisplay();
 
 
 
