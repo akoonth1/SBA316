@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (!name) return;
 			if (typeof player1 !== 'undefined') {
 				player1.name = name;
-				CharacterName.textContent = `Name: ${player1.name}`;
+				CharacterName.textContent = `Player: ${player1.name}`;
 				localStorage.setItem('player1', JSON.stringify(player1));
 			}
 			console.log('Saved name:', name);
@@ -55,7 +55,7 @@ function saveInputValue() {
 
 	// Add a heading and a list inside the div
 	const heading = document.createElement('p');
-	heading.textContent = 'Hello from JavaScript-created div';
+	heading.textContent = "Welcome to the Dungeon!";
 	heading.style.margin = '0 0 8px 0';
 	newDiv.appendChild(heading);
 
@@ -93,8 +93,6 @@ function saveInputValue() {
 	}
 
  let player1 = new Character( newInput, 'Water', 100, 15);
- console.log(player1);
-
  let enemy1 = new Character('Goblin', 'Earth', 80, 10);
  let enemy2 = new Character('Orc', 'Fire', 120, 20);
  let enemy3 = new Character('Troll', 'Air', 150, 25);
@@ -105,7 +103,10 @@ function saveInputValue() {
 
 
  const CharacterName = document.createElement('p');
- CharacterName.textContent = `Name: ${player1.name}`;
+ CharacterName.textContent = `Player Name: ${player1.name}`;
+ if (CharacterName.textContent === 'Player Name: [object HTMLInputElement]') {
+	CharacterName.textContent = 'Player Name: Unknown Adventurer';
+ }
  newDiv.appendChild(CharacterName);
 
 
@@ -125,16 +126,93 @@ function saveInputValue() {
 
  let RoomColor = ['lightgray', 'lightblue', 'lightgreen', 'lightyellow', 'lightpink', 'lightcoral'];
  let currentRoom = 0;
- function changeRoom() {
+function changeRoom() {
+	// advance to next room and record visit (avoid duplicate consecutive entries)
 	currentRoom = (currentRoom + 1) % RoomColor.length;
 	DungeonSpace.style.backgroundColor = RoomColor[currentRoom];
- }
- const changeRoomBtn = document.createElement('button');
- changeRoomBtn.textContent = 'Change Room';
- changeRoomBtn.style.marginTop = '8px';
- newDiv.appendChild(changeRoomBtn);
- changeRoomBtn.addEventListener('click', changeRoom);
+	DungeonSpace.dataset.room = currentRoom;
+	const id = `room-${currentRoom}`;
+	if (roomsVisited[roomsVisited.length - 1] !== id) roomsVisited.push(id);
+	console.log('Rooms visited:', roomsVisited);
+}
 
+function changeRoomLeft() {
+	// move one room left (circular) and record visit
+	currentRoom = (currentRoom - 1 + RoomColor.length) % RoomColor.length;
+	DungeonSpace.style.backgroundColor = RoomColor[currentRoom];
+	DungeonSpace.dataset.room = currentRoom;
+	const id = `room-${currentRoom}`;
+	if (roomsVisited[roomsVisited.length - 1] !== id) roomsVisited.push(id);
+	console.log('Rooms visited:', roomsVisited);
+}
+
+// history-based previous loader: pop current and load last visited
+function loadPreviousFromHistory() {
+	// remove current location
+	if (roomsVisited.length <= 1) {
+		console.log('No previous room in history');
+		return;
+	}
+	// pop current
+	roomsVisited.pop();
+	const last = roomsVisited[roomsVisited.length - 1];
+	if (!last) return;
+	const match = last.match(/room-(\d+)/);
+	if (!match) return;
+	const idx = parseInt(match[1], 10);
+	if (Number.isFinite(idx)) {
+		currentRoom = idx % RoomColor.length;
+		DungeonSpace.style.backgroundColor = RoomColor[currentRoom];
+		DungeonSpace.dataset.room = currentRoom;
+		console.log('Loaded previous from history:', last);
+	}
+}
+
+// select dungeon by id and track visits
+const dungeonEl = document.getElementById('dungeonSpace');
+let roomsVisited = [];
+DungeonSpace.style.backgroundColor = RoomColor[currentRoom];
+if (dungeonEl) {
+	dungeonEl.dataset.room = currentRoom;
+	roomsVisited.push(`room-${currentRoom}`);
+}
+
+
+
+ const leftRoomBtn = document.createElement('button');
+ leftRoomBtn.textContent = 'Left Room';
+ leftRoomBtn.style.marginTop = '8px';
+ newDiv.appendChild(leftRoomBtn);
+ leftRoomBtn.addEventListener('click', changeRoomLeft);
+
+ const rightRoomBtn = document.createElement('button');
+ rightRoomBtn.textContent = 'Right Room';
+ rightRoomBtn.style.marginTop = '8px';
+ newDiv.appendChild(rightRoomBtn);
+ rightRoomBtn.addEventListener('click', changeRoom);
+
+ const forwardRoomBtn = document.createElement('button');
+ forwardRoomBtn.textContent = 'Forward Room';
+ forwardRoomBtn.style.marginTop = '8px';
+ newDiv.appendChild(forwardRoomBtn);
+ forwardRoomBtn.addEventListener('click', changeRoom);
+
+ const backRoomBtn = document.createElement('button');
+ backRoomBtn.textContent = 'Previous Room';
+ backRoomBtn.style.marginTop = '8px';
+ newDiv.appendChild(backRoomBtn);
+ backRoomBtn.addEventListener('click', loadPreviousFromHistory);
+
+
+const itemList = document.querySelector('#myDiv ul');
+const newItem = document.createElement('li');
+newItem.textContent = 'Item 4';
+itemList.appendChild(newItem);
+
+console.log(itemList)
+ 
 
 });
+
+
 
