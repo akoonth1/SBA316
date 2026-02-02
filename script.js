@@ -4,8 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	newDiv.className = 'generated-div';
 
 
-
-
+		
+	let gameState = true;
 
 	function addInputField(initialName) {
 		const wrapper = document.createElement('div');
@@ -16,16 +16,39 @@ document.addEventListener('DOMContentLoaded', () => {
 		input.type = 'text';
 		input.placeholder = 'Enter name';
 		input.value = initialName || '';
+		input.required = true;
 
 		const saveBtn = document.createElement('button');
 		saveBtn.textContent = 'Save';
+		// disable save until valid
+		saveBtn.disabled = !(input.value && input.value.trim().length > 0);
+
+		// inline validation message
+		const errorMsg = document.createElement('span');
+		errorMsg.style.color = 'red';
+		errorMsg.style.fontSize = '14px';
+		errorMsg.style.marginLeft = '8px';
+		errorMsg.textContent = 'Name is required';
+		errorMsg.style.display = saveBtn.disabled ? 'inline' : 'none';
+
 		wrapper.appendChild(input);
 		wrapper.appendChild(saveBtn);
+		wrapper.appendChild(errorMsg);
 		newDiv.appendChild(wrapper);
+
+		input.addEventListener('input', () => {
+			const valid = input.value.trim().length > 0;
+			saveBtn.disabled = !valid;
+			errorMsg.style.display = valid ? 'none' : 'inline';
+		});
 
 		saveBtn.addEventListener('click', () => {
 			const name = input.value.trim();
-			if (!name) return;
+			if (!name) {
+				errorMsg.style.display = 'inline';
+				saveBtn.disabled = true;
+				return;
+			}
 			if (typeof player1 !== 'undefined') {
 				player1.name = name;
 				CharacterName.textContent = `Player: ${player1.name}`;
@@ -60,7 +83,7 @@ function saveInputValue() {
 	newDiv.appendChild(heading);
 
 	const list = document.createElement('ul');
-	const items = ['Item 1', 'Item 2', 'Item 3'];
+	const items = ['Map', 'Bag', 'Key'];
 	items.forEach(text => {
 		const li = document.createElement('li');
 		li.textContent = text;
@@ -132,8 +155,7 @@ function changeRoom() {
 	DungeonSpace.style.backgroundColor = RoomColor[currentRoom];
 	DungeonSpace.dataset.room = currentRoom;
 	const id = `room-${currentRoom}`;
-	if (roomsVisited[roomsVisited.length - 1] !== id) roomsVisited.push(id);
-	console.log('Rooms visited:', roomsVisited);
+	recordVisit(id);
 }
 
 function changeRoomLeft() {
@@ -142,8 +164,7 @@ function changeRoomLeft() {
 	DungeonSpace.style.backgroundColor = RoomColor[currentRoom];
 	DungeonSpace.dataset.room = currentRoom;
 	const id = `room-${currentRoom}`;
-	if (roomsVisited[roomsVisited.length - 1] !== id) roomsVisited.push(id);
-	console.log('Rooms visited:', roomsVisited);
+	recordVisit(id);
 }
 
 // history-based previous loader: pop current and load last visited
@@ -171,10 +192,37 @@ function loadPreviousFromHistory() {
 // select dungeon by id and track visits
 const dungeonEl = document.getElementById('dungeonSpace');
 let roomsVisited = [];
+// visits counter UI
+const visitsCounter = document.createElement('p');
+visitsCounter.id = 'visitsCounter';
+visitsCounter.style.marginTop = '8px';
+visitsCounter.textContent = `Rooms visited: ${roomsVisited.length}`;
+newDiv.appendChild(visitsCounter);
+
+function recordVisit(id) {
+	const prevLen = roomsVisited.length;
+	if (roomsVisited[roomsVisited.length - 1] !== id) {
+		roomsVisited.push(id);
+	}
+	if (roomsVisited.length > prevLen) {
+		console.log('New room visited:', id);
+		visitsCounter.textContent = `Rooms visited: ${roomsVisited.length}`;
+		// game over check: trigger when visits reach threshold
+		if (roomsVisited.length >= 3 && gameState) {
+			gameState = false;
+			alert('Game Over! Restart to play again.');
+			window.confirm('Would you like to restart the game?') && window.location.reload();
+			
+
+
+		}
+	}
+}
+
 DungeonSpace.style.backgroundColor = RoomColor[currentRoom];
 if (dungeonEl) {
 	dungeonEl.dataset.room = currentRoom;
-	roomsVisited.push(`room-${currentRoom}`);
+	recordVisit(`room-${currentRoom}`);
 }
 
 
@@ -204,13 +252,42 @@ if (dungeonEl) {
  backRoomBtn.addEventListener('click', loadPreviousFromHistory);
 
 
-const itemList = document.querySelector('#myDiv ul');
+let itemList = document.querySelector('#myDiv ul');
+if (!itemList) {
+	// If the list doesn't exist, create one inside `newDiv` so appendChild won't fail
+	itemList = document.createElement('ul');
+	newDiv.appendChild(itemList);
+}
 const newItem = document.createElement('li');
-newItem.textContent = 'Item 4';
+newItem.textContent = 'Lantern';
 itemList.appendChild(newItem);
 
-console.log(itemList)
+console.log(itemList);
+
+itemList.id = 'list';
  
+const data = ["Sword", "Coin", "Shield", "Health Potion", "Food"];
+
+const list2 = document.querySelector("#list");
+const roomId = `room-${currentRoom}`;
+	
+console.log('Current Room ID:', roomId);
+
+if (!roomsVisited.includes(roomId)) {
+		const fragment = document.createDocumentFragment();
+		data.forEach(item => {
+			const li = document.createElement("li");
+			li.textContent = item;
+			fragment.appendChild(li);
+		});
+		list2.appendChild(fragment);
+		console.log(list2);
+} else {
+		console.log('No element with id "list" found; skipping list2 population.');
+}
+
+// game-over is now handled inside `recordVisit`
+
 
 });
 
